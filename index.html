@@ -1,0 +1,491 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Documento sin título</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://code.jquery.com/jquery-1.12.4.js" ></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+<style type="text/css">
+
+#container1 {
+    float:left;
+    width:100%;
+}
+#col1, #col2, #col3, #col4 {
+    float:left;
+    width:24.5%;
+	height:500px;
+	overflow-y:scroll;
+	border:1px solid #CCC;
+}
+.oculto {
+	display: none;	
+}
+.oculto:hover {
+	display: block;	
+}
+.ampliar:hover + .oculto{
+	display: block;
+}
+.drag{
+	
+}
+
+</style>
+</head>
+<body>
+<div id = 'titulo' align="center">
+  <h1>CRM</h1>
+</div>
+  <div class="cuerpo" id="container1">
+    <div id="col1">          
+    </div>
+    <div id="col2">   
+    </div>
+    <div id="col3">        
+    </div>
+    <div id="col4">      
+    </div>
+  </div>
+  <div id = "dialog-form" style="background:#FFF; border:1px solid #CCC;">
+    <form>
+      <fieldset>
+        <div>
+          <label>Nombre:</label>
+          <input type="text" id="name" readonly="readonly" >
+        </div>
+        <div>
+          <label>Edad:</label>
+          <input type="text" id="age" readonly="readonly" >
+        </div>
+        <div>
+          <label>Correo:</label>
+          <input type="text" id="email" readonly="readonly">
+        </div>
+        <div>
+          <label>Telefono:</label>
+          <input type="text" id="phone" readonly="readonly">
+        </div>
+        <div>
+          <label>Ciudad:</label>
+          <input type="text" id="city" readonly="readonly">
+        </div>
+        <div>
+          <label>Curso:</label>
+          <input type="text" id="subject" readonly="readonly">
+        </div>
+        <div>
+          <label>Fecha de inicio:</label>
+          <input type="text" id="start" readonly="readonly">
+        </div>
+        <div>
+          <label>Fecha de ingreso:</label>
+          <input type="text" id="ingress" readonly="readonly">
+        </div>
+        <div>
+          <label>Proxima fecha*:</label>
+          <input type="date" id="next-date"/>
+        </div>
+        <div>
+          <label>Forma de contacto*:</label>
+          <input type="text" id="mode"/>
+        </div>
+        <div>
+          <label>Nota*:</label>
+          <input type="text" id="note"/>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div id = "dialog-form2" style="background:#FFF; border:1px solid #CCC;">
+    <form>
+      <fieldset>
+        <div>
+          <label>Nombre:</label>
+          <input type="text" id="accept-name" readonly="readonly" >
+        </div>
+        <div>
+          <label>Comentarios de la venta*:</label>
+          <input type="text" id="accept-note"/>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div id = "dialog-form3" style="background:#FFF; border:1px solid #CCC;">
+    <form>
+      <fieldset>
+        <div>
+          <label>Nombre:</label>
+          <input type="text" id="reject-name" readonly="readonly" >
+        </div>
+        <div>
+          <label>Motivos de rechazo*:</label>
+          <input type="text" id="reject-note"/>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div id = 'pie' align="center">
+    <h2>smartmanagement</h2>
+  </div>
+<script>
+
+var seler_name = "Andres Perez";
+
+function contact(val){
+	
+	str = '<div class="w3-card-4" style="width:100%; background-color:#FFF"><header class="w3-container w3-light-grey"><h5>'+val.nombre+'</h5></header><div class="w3-container"><img src="img_avatar3.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px; height:75px; padding-top:15px;"><p>'+val.telefono+', edad '+val.edad+'</p><p class="ampliar">+Detalles...</p><div class="oculto"><p>'+val.curso+'</p><p>'+val.ciudad+'</p><p>fecha de inicio: '+val.f_inicio+'</p><p>ingreso de datos: '+val.fecha+'</p><p>'+val.correo+'</p><p>Proxima fecha: '+val.f_proxima+'</p><p>Forma de contacto: '+val.forma_contacto+'</p><p>Notas: '+val.notas+'</p></div></div></div>';
+	
+	return str;		
+}
+
+function addUser(ui, val) {
+	
+	val.f_proxima = $('#next-date').val();
+	val.forma_contacto = $('#mode').val();
+	val.notas = $('#note').val();
+	val.transaccion = "process";
+	val.vendedor = seler_name;
+	val.old_id = val.id;
+	
+	if($("#process-"+val.id).length){
+		$("#process-"+val.id).remove();	
+	}
+	
+	if((val.f_proxima != "") && (val.forma_contacto != "") && (val.notas != "")){	
+		dialog.dialog( "close" );
+		if(ui != null)
+			ui.draggable.remove();
+		
+		card = $('<div />',{
+			class: "drag",
+			style: "padding:5px 5px 5px 5px",
+			id: "process-" + val.id,
+			html: contact(val)
+		}).draggable({
+			revert: 'invalid',
+			containment: $('#container1'),
+			helper: 'clone',
+			stack: ".drag"
+		});
+			
+		btn = $('<button />',{
+			class: "w3-btn-block w3-deep-purple",
+			id: "bt-" + val.id,
+			html:'Edit'
+		}).click(function(event){
+			old_id = event.target.id;
+			old_id = old_id.substring(old_id.indexOf('-') + 1);
+			$.post( "database.php", { operacion: "id_contacto", id: old_id }).done(function(dat1) {
+				obj = $.parseJSON(dat1);
+				$('#name').val(obj.nombre);
+				$('#age').val(obj.edad);
+				$('#email').val(obj.correo);
+				$('#phone').val(obj.telefono);
+				$('#city').val(obj.ciudad);
+				$('#subject').val(obj.curso);
+				$('#start').val(obj.f_inicio);
+				$('#ingress').val(obj.fecha);
+				$('#next-date').val("");
+				$('#mode').val("");
+				$('#note').val("");
+					
+				dialog = dialog.dialog({
+					buttons: {
+						"Agendar" : function() {
+							addUser(null, obj);
+						},
+						"Cancelar" : function() {
+							dialog.dialog( "close" );
+						}
+					}
+				});					
+				dialog.dialog( "open" );					
+			});
+		});
+			
+		btn.appendTo(card);
+		card.appendTo('#col2');
+		
+		$.post( "database.php", { operacion: "contact_disponible", id: val.id }).done(function(dat) {});
+		$.post( "database.php", { operacion: "process_insertar", data: val }).done(function(dat) {});	  	
+	}
+	else{
+		alert("Debes llenar los campos marcados con (*)");		
+	}
+}
+
+
+function acceptUser(ui, val) {
+	
+	val.notas = $('#accept-note').val();
+	val.transaccion = "accept";
+	val.vendedor = seler_name;
+	
+	if(val.notas != ""){	
+		dialog2.dialog( "close" );
+		ui.draggable.remove();
+		$('<div />',{
+			class: "drag",
+			style: "padding:5px 5px 5px 5px",
+			id: "accept-" + val.old_id,
+			html: contact(val)
+		}).prependTo('#col3');
+		
+		$.post( "database.php", { operacion: "accept_insertar", id: val.old_id }).done(function(dat) {});	  	
+	}
+	else{
+		alert("Debes llenar los campos marcados con (*)");		
+	}
+}
+
+function rejectUser(ui, val) {
+	
+	val.notas = $('#reject-note').val();
+	val.transaccion = "reject";
+	val.vendedor = seler_name;
+	
+	if(val.notas != ""){	
+		dialog3.dialog( "close" );
+		ui.draggable.remove();
+		$('<div />',{
+			class: "drag",
+			style: "padding:5px 5px 5px 5px",
+			id: "reject-" + val.id,
+			html: contact(val)
+		}).prependTo('#col4');
+		
+		$.post( "database.php", { operacion: "reject_insertar", id: val.old_id }).done(function(dat) {});	  	
+	}
+	else{
+		alert("Debes llenar los campos marcados con (*)");		
+	}
+}
+
+$(document).ready(function(){
+	
+	dialog = $( "#dialog-form" ).dialog({
+		autoOpen: false,
+		modal: true,
+		width: 500
+	});
+	
+	dialog2 = $( "#dialog-form2" ).dialog({
+		autoOpen: false,
+		modal: true,
+		width: 500
+	});
+	
+	dialog3 = $( "#dialog-form3" ).dialog({
+		autoOpen: false,
+		modal: true,
+		width: 500
+	});
+	
+	$('.w3-pale-green');
+	$('.w3-pale-yellow');
+	$('.w3-pale-red');
+	
+	$.post( "database.php", { operacion: "contactos" }).done(function(dat) {		
+		obj = $.parseJSON(dat)
+		$.each(obj, function(index, val){
+			$('<div />',{
+				class: "drag",
+				style: "padding:5px 5px 5px 5px",
+				id: "contact-" + val.id,
+				html: contact(val)
+			})
+			.appendTo('#col1')
+			.draggable({
+				revert: 'invalid',
+				containment: $('#container1'),
+				helper: 'clone',
+				stack: ".drag"
+			});
+		});
+    });
+	
+	$.post( "database.php", { operacion: "procesados" }).done(function(dat) {		
+		obj = $.parseJSON(dat)
+		$.each(obj, function(index, val){
+			card = $('<div />',{
+				class: "drag",
+				style: "padding:5px 5px 5px 5px",
+				id: "process-" + val.old_id,
+				html: contact(val)
+			}).draggable({
+				revert: 'invalid',
+				containment: $('#container1'),
+				helper: 'clone',
+				stack: ".drag"
+			});
+			
+			btn = $('<button />',{
+				class: "w3-btn-block w3-deep-purple",
+				id: "bt-" + val.old_id,
+				html:'Edit'
+			}).click(function(event){
+				old_id = event.target.id;
+				old_id = old_id.substring(old_id.indexOf('-') + 1);
+				$.post( "database.php", { operacion: "id_contacto", id: old_id }).done(function(dat1) {
+					obj = $.parseJSON(dat1);
+					$('#name').val(obj.nombre);
+					$('#age').val(obj.edad);
+					$('#email').val(obj.correo);
+					$('#phone').val(obj.telefono);
+					$('#city').val(obj.ciudad);
+					$('#subject').val(obj.curso);
+					$('#start').val(obj.f_inicio);
+					$('#ingress').val(obj.fecha);
+					$('#next-date').val("");
+					$('#mode').val("");
+					$('#note').val("");
+					
+					dialog = dialog.dialog({
+						buttons: {
+							"Agendar" : function() {
+								addUser(null, obj);
+							},
+							"Cancelar" : function() {
+								dialog.dialog( "close" );
+							}
+						}
+					});					
+					dialog.dialog( "open" );					
+				});
+			});
+			
+			btn.appendTo(card);
+			card.appendTo('#col2');		  
+		});
+    });
+	
+	
+	$.post( "database.php", { operacion: "aceptados" }).done(function(dat) {		
+		obj = $.parseJSON(dat)
+		$.each(obj, function(index, val){
+			$('<div />',{
+				class: "drag",
+				style: "padding:5px 5px 5px 5px",
+				id: "accept-" + val.old_id,
+				html: contact(val)
+			}).appendTo('#col3');
+		});
+    });
+	
+	$.post( "database.php", { operacion: "rechazados" }).done(function(dat) {		
+		obj = $.parseJSON(dat)
+		$.each(obj, function(index, val){
+			$('<div />',{
+				class: "drag",
+				style: "padding:5px 5px 5px 5px",
+				id: "reject-" + val.old_id,
+				html: contact(val)
+			}).appendTo('#col4');
+		});
+    });
+	
+	
+	$( "#col2" ).droppable({
+		accept: "#col1 div",
+		drop: function( event, ui ){			
+			old_id = ui.draggable.attr('id');
+			old_id = old_id.substring(old_id.indexOf('-') + 1);
+			$.post( "database.php", { operacion: "id_contacto", id: old_id }).done(function(dat1) {
+				obj = $.parseJSON(dat1);
+				if(obj.disponible == 1){
+					$('#name').val(obj.nombre);
+					$('#age').val(obj.edad);
+					$('#email').val(obj.correo);
+					$('#phone').val(obj.telefono);
+					$('#city').val(obj.ciudad);
+					$('#subject').val(obj.curso);
+					$('#start').val(obj.f_inicio);
+					$('#ingress').val(obj.fecha);
+					$('#next-date').val("");
+					$('#mode').val("");
+					$('#note').val("");
+					
+					dialog = dialog.dialog({
+						buttons: {
+							"Agendar" : function() {
+								addUser(ui, obj);
+							},
+							"Cancelar" : function() {
+								dialog.dialog( "close" );
+							}
+						}
+					});
+					
+					dialog.dialog( "open" );
+				}
+				else{
+					alert("Este contacto ya no se encuentra disponible");	
+					ui.draggable.remove();				
+				}
+			}); 				
+		}
+	});	
+	
+	$( "#col3" ).droppable({
+		accept: "#col2 div",
+		drop: function( event, ui ){			
+			old_id = ui.draggable.attr('id');
+			old_id = old_id.substring(old_id.indexOf('-') + 1);
+						
+			$.post( "database.php", { operacion: "id_proceso", id: old_id }).done(function(dat) {
+				
+				obj = $.parseJSON(dat);
+				
+				$('#accept-name').val(obj.nombre);					
+				dialog2 = dialog2.dialog({
+					buttons: {
+						"Agendar" : function() {
+							acceptUser(ui, obj);
+						},
+						"Cancelar" : function() {
+							dialog2.dialog( "close" );
+						}
+					}
+				});
+				
+				dialog2.dialog( "open" );
+								
+			});			 				
+		}
+    });	
+	
+	$( "#col4" ).droppable({
+		accept: "#col2 div",
+		drop: function( event, ui ){			
+			old_id = ui.draggable.attr('id');
+			old_id = old_id.substring(old_id.indexOf('-') + 1);
+			
+			$.post( "database.php", { operacion: "id_proceso", id: old_id }).done(function(dat) {
+				
+				obj = $.parseJSON(dat);
+				
+				$('#reject-name').val(obj.nombre);					
+				dialog3 = dialog3.dialog({
+					buttons: {
+						"Agendar" : function() {
+							rejectUser(ui, obj);
+						},
+						"Cancelar" : function() {
+							dialog3.dialog( "close" );
+						}
+					}
+				});
+					
+				dialog3.dialog( "open" );
+								
+			});			 				
+		}
+    });			
+})
+
+</script>
+</body>
+</html>
