@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Documento sin título</title>
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/dataTables.jqueryui.min.css">
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.13/js/dataTables.jqueryui.min.js"></script>
+<script>
+
+function cargar_clientes_fundel_php() {
+	
+	$('#tabla').DataTable();
+	var t = $('#tabla').DataTable();
+	var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            data = JSON.parse(this.responseText);
+			$.each(data, function(rowIndex, r) {
+				r.push('<input type="button" value="borrar"  onClick="boton_borrar(event)"  id="btb'+ r[0] +'"/>');
+				r.push('<form name="form0' + rowIndex + '" method="get" action="formulario_datos.html"><input type="hidden" name="data_id" id="hiddenField" value="'+ r[0] +'"><input type="submit" value="editar" id="bte'+ rowIndex +'" ></form>');
+				r.splice(0,1);
+				r.unshift(rowIndex + 1);
+				t.row.add(r).draw( false );
+			});
+        }
+    };
+	xmlhttp.open("POST", "database.php", true);
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp.send();	
+	
+	
+}
+
+function boton_borrar(event){
+	str = event.target.id;
+	id = str.substring(3);
+	var r = confirm("¿Realmente desea borrar este registro?");
+    if (r == true) {
+		
+		 var xmlhttp = new XMLHttpRequest();
+    		xmlhttp.onreadystatechange = function() {
+        	if (this.readyState == 4 && this.status == 200) {
+				myObj = JSON.parse(this.responseText);
+            	alert(myObj);
+				location.reload();		
+        	}
+    };	
+	xmlhttp.open("POST", "remover.php", true);
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp.send("id="+id);				
+    } 	    
+}
+
+</script>
+
+<body onload="cargar_clientes_fundel_php()">
+
+<div id="table-form">
+	<div>
+		<h1>Inicio</h1> 
+		<h4>Datos actuales</h4> 
+	</div>
+		<p id="failure">Oops...algo salio mal.</p>  
+		<p id="success">Perfect...!</p>
+
+    		<form method="get" action="formulario_datos.html">
+      
+     		<div>
+      			<button name="submit" type="submit" id="submit" >AGREGAR NUEVO REGISTRO</button>
+      		</div>
+    </form>
+    
+    
+    
+  	<table id="tabla" class="display" cellspacing="0" width="100%" >
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>nombre</th>
+                <th>correo</th>
+                <th>telefono</th>
+                <th>ciudad</th>
+                <th>empresa</th>
+                <th>actividad</th>
+                <th>fecha</th>
+                <th>borrar</th>
+                <th>editar</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>id</th>
+                <th>nombre</th>
+                <th>correo</th>
+                <th>telefono</th>
+                <th>ciudad</th>
+                <th>empresa</th>
+                <th>actividad</th>
+                <th>fecha</th>
+                <th>borrar</th>
+                <th>editar</th>
+            </tr>
+        </tfoot>
+    </table>
+    
+  
+    </div>
+
+</div>
+</body>
+</html>

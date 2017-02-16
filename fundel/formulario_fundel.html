@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title>Responsive Contact Form</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+
+
+  
+</head>
+
+<body onLoad="add_items()">
+  
+<div id="contact-form">
+	<div>
+		<h1>Formulario</h1> 
+		<h4>Ingrese los nuevos datos</h4> 
+	</div>
+		<p id="failure">Oopsie...algo salio mal.</p>  
+		<p id="success">Perfect...!</p>
+
+		   <form method="post" action="insertar.php">
+           <input type="hidden" name="empresa" id="oculto1" value="123"/>
+   <input type="hidden" name="actividad" id="oculto2" value="abc"/>
+   <input type="hidden" name="id" id="dato-id" value="0" />
+			<div>
+		      <label for="name">
+		      	<span class="required">Nombre</span> 
+		      	<input type="text" id="nombre" name="nombre" value="" placeholder="Your Name" required tabindex="1" autofocus />
+		      </label> 
+			</div>
+			<div>
+		      <label for="email">
+		      	<span class="required">E-mail</span>
+		      	<input type="email" id="correo" name="correo" value="" placeholder="Your Email" tabindex="2" required />
+		      </label>  
+			</div>
+            <div>
+		      <label for="phone">
+		      	<span class="required">Telefono</span> 
+		      	<input type="number" id="celular" name="celular" value="" placeholder="Your phone" required tabindex="3" />
+		      </label> 
+			</div>
+			<div>		          
+		      <label for="city">
+		      <span>Ciudad </span>
+			      <select id="ciudad" name="ciudad" tabindex="4" >   
+			         <option >Ambato</option>
+			         <option >Latacunga</option>  
+			         
+			      </select>
+		      </label>
+			</div>
+            
+            <div>		          
+		      <label for="city">
+		      <span>Tipo de Curso </span>
+			      <select id="lista_2" name="lista_2" tabindex="5">    
+			         
+			      </select>
+		      </label>
+			</div>
+			
+			<div>		           
+		      <button name="submit" type="submit" id="submit" onMouseDown="obtener_datos()">REGISTRAR</button> 
+			</div>
+		   </form>
+
+	</div>
+    
+<script>
+
+function add_items(){
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            myObj = JSON.parse(this.responseText);
+            
+            var min = 0, max = myObj.length, select = document.getElementById('lista_2');
+            for (var i = min; i<max; i++){
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.innerHTML = myObj[i];
+                select.appendChild(opt);  
+            }
+		    document.getElementById("lista_2").selectedIndex = 0;
+		}
+    };
+        
+    xmlhttp.open("POST", "datos_fundel.php", true);
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp.send("dat=Fundel");
+	
+	seleccionar();
+	
+}
+
+
+function seleccionar(){
+	var str = window.location.search;
+	n1 = str.indexOf("=");
+    n2 = str.indexOf("&");
+    str = str.substring(n1 + 1, n2);
+	
+	if($.isNumeric(str)){
+			
+		var xmlhttp1 = new XMLHttpRequest();
+	    xmlhttp1.onreadystatechange = function() {
+    	    if (this.readyState == 4 && this.status == 200) {
+        	    myObj = JSON.parse(this.responseText);
+				llenar(myObj[0], str);
+			}
+    	};
+        
+    	xmlhttp1.open("POST", "actualizar.php", true);
+    	xmlhttp1.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    	xmlhttp1.send("id=" + str);	
+	}
+}
+
+function llenar(datos, id){
+	
+	var d1 = document.getElementById('ciudad');
+	var d2 = document.getElementById('lista_2');
+	
+	for(i = 0; i < d1.options.length; i++)
+		if(datos[3] == d1.options[i].text)
+			d1.selectedIndex = i;
+	
+	for(i = 0; i < d2.options.length; i++)
+		if(datos[4] == d2.options[i].text)
+			d2.selectedIndex = i;
+			
+	$('#nombre').val(datos[0]);
+	$('#correo').val(datos[1]);
+	$('#celular').val(datos[2]);
+	$('#dato-id').val(id);
+
+}
+
+
+
+function obtener_datos(){
+	
+    var txtSel1 = "Fundel";
+    var lista2 = document.getElementById("lista_2");
+    var indiceSeleccionado2 = lista2.selectedIndex;
+    var opcionSeleccionada2 = lista2.options[indiceSeleccionado2];
+    var txtSel2 = opcionSeleccionada2.text;
+    
+    document.getElementById('oculto1').value = txtSel1 ;
+    document.getElementById('oculto2').value = txtSel2 ;
+}
+
+</script>
+  
+  
+</body>
+</html>
